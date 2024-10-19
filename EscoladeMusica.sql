@@ -15,19 +15,6 @@ CREATE SCHEMA IF NOT EXISTS `Escola_Musica` ;
 USE `Escola_Musica` ;
 
 -- -----------------------------------------------------
--- Table `Escola_Musica`.`Sinfonia`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `Escola_Musica`.`Sinfonia` (
-  `idSinfonia` INT NOT NULL AUTO_INCREMENT,
-  `nome` VARCHAR(45) NOT NULL,
-  `compositor` VARCHAR(45) NOT NULL,
-  `dt_criacao` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`idSinfonia`),
-  UNIQUE INDEX `idSinfonia_UNIQUE` (`idSinfonia` ASC) VISIBLE)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
 -- Table `Escola_Musica`.`Orquestra`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Escola_Musica`.`Orquestra` (
@@ -36,12 +23,25 @@ CREATE TABLE IF NOT EXISTS `Escola_Musica`.`Orquestra` (
   `cidade` VARCHAR(45) NOT NULL,
   `pais` VARCHAR(45) NOT NULL,
   `dt_criacao` VARCHAR(45) NOT NULL,
-  `Sinfonia_idSinfonia` INT NOT NULL,
-  PRIMARY KEY (`idOrquestra`),
-  INDEX `fk_Orquestra_Sinfonia_idx` (`Sinfonia_idSinfonia` ASC) VISIBLE,
-  CONSTRAINT `fk_Orquestra_Sinfonia`
-    FOREIGN KEY (`Sinfonia_idSinfonia`)
-    REFERENCES `Escola_Musica`.`Sinfonia` (`idSinfonia`)
+  PRIMARY KEY (`idOrquestra`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Escola_Musica`.`Sinfonia`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Escola_Musica`.`Sinfonia` (
+  `idSinfonia` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(45) NOT NULL,
+  `compositor` VARCHAR(45) NOT NULL,
+  `dt_criacao` VARCHAR(45) NOT NULL,
+  `Orquestra_idOrquestra` INT NOT NULL,
+  PRIMARY KEY (`idSinfonia`),
+  UNIQUE INDEX `idSinfonia_UNIQUE` (`idSinfonia` ASC) VISIBLE,
+  INDEX `fk_Sinfonia_Orquestra1_idx` (`Orquestra_idOrquestra` ASC) VISIBLE,
+  CONSTRAINT `fk_Sinfonia_Orquestra1`
+    FOREIGN KEY (`Orquestra_idOrquestra`)
+    REFERENCES `Escola_Musica`.`Orquestra` (`idOrquestra`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -97,12 +97,12 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `Escola_Musica`.`participa` (
   `Musicos_idMusicos` INT NOT NULL,
   `funcao_musicos_idfuncao_musicos` INT NOT NULL,
-  `Sinfonia_idSinfonia` INT NOT NULL,
   `Instrumentos_idInstrumentos` INT NOT NULL,
-  PRIMARY KEY (`Musicos_idMusicos`, `funcao_musicos_idfuncao_musicos`, `Sinfonia_idSinfonia`, `Instrumentos_idInstrumentos`),
+  `Sinfonia_idSinfonia` INT NOT NULL,
+  PRIMARY KEY (`Musicos_idMusicos`, `funcao_musicos_idfuncao_musicos`, `Instrumentos_idInstrumentos`, `Sinfonia_idSinfonia`),
   INDEX `fk_participa_funcao_musicos1_idx` (`funcao_musicos_idfuncao_musicos` ASC) VISIBLE,
-  INDEX `fk_participa_Sinfonia1_idx` (`Sinfonia_idSinfonia` ASC) VISIBLE,
   INDEX `fk_participa_Instrumentos1_idx` (`Instrumentos_idInstrumentos` ASC) VISIBLE,
+  INDEX `fk_participa_Sinfonia1_idx` (`Sinfonia_idSinfonia` ASC) VISIBLE,
   CONSTRAINT `fk_participa_Musicos1`
     FOREIGN KEY (`Musicos_idMusicos`)
     REFERENCES `Escola_Musica`.`Musicos` (`idMusicos`)
@@ -113,26 +113,18 @@ CREATE TABLE IF NOT EXISTS `Escola_Musica`.`participa` (
     REFERENCES `Escola_Musica`.`funcao_musicos` (`idfuncao_musicos`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_participa_Sinfonia1`
-    FOREIGN KEY (`Sinfonia_idSinfonia`)
-    REFERENCES `Escola_Musica`.`Sinfonia` (`idSinfonia`)
-    ON DELETE CASCADE
-    ON UPDATE NO ACTION,
   CONSTRAINT `fk_participa_Instrumentos1`
     FOREIGN KEY (`Instrumentos_idInstrumentos`)
     REFERENCES `Escola_Musica`.`Instrumentos` (`idInstrumentos`)
     ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_participa_Sinfonia1`
+    FOREIGN KEY (`Sinfonia_idSinfonia`)
+    REFERENCES `Escola_Musica`.`Sinfonia` (`idSinfonia`)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
-alter table musicos
-	add column Instrumento_Fav varchar(25) null after dt_nasc;
-    
-alter table Instrumentos
-	change column tipo Nome varchar(25) not null;
-    
-alter table Instrumentos
-	add column Categoria varchar(25) not null;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
